@@ -1,5 +1,6 @@
 import crawler.WebCrawler;
 import org.assertj.swing.fixture.JButtonFixture;
+import org.assertj.swing.fixture.JLabelFixture;
 import org.assertj.swing.fixture.JTextComponentFixture;
 import org.hyperskill.hstest.dynamic.DynamicTest;
 import org.hyperskill.hstest.mocks.web.WebServerMock;
@@ -56,6 +57,9 @@ public class CrawlerTest extends SwingTest {
     @SwingComponent(name = "RunButton")
     JButtonFixture runButton;
 
+    @SwingComponent(name = "TitleLabel")
+    JLabelFixture titleLabel;
+
     @DynamicTest(order = 1)
     CheckResult testTextArea() {
 
@@ -70,9 +74,11 @@ public class CrawlerTest extends SwingTest {
 
         requireVisible(textField);
         requireVisible(runButton);
+        requireVisible(titleLabel);
 
         requireEnabled(textField);
         requireEnabled(runButton);
+        requireEnabled(titleLabel);
 
         requireDisabled(textArea);
 
@@ -93,6 +99,24 @@ public class CrawlerTest extends SwingTest {
 
             if (!textArea.text().equals(content)) {
                 return CheckResult.wrong("HtmlTextArea contains wrong HTML code");
+            }
+        }
+
+        return CheckResult.correct();
+    }
+
+    @DynamicTest(order = 4)
+    CheckResult testTitles() {
+
+        Map<String, String> map = pageContent.getLinksNTitles();
+
+        for (Map.Entry<String, String> m : map.entrySet()) {
+            String link = m.getKey();
+            textField.setText(link);
+            runButton.click();
+            String title = pageContent.getTitleWithLink(link);
+            if (!titleLabel.text().equals(title)) {
+                return CheckResult.wrong("TitleLabel shows the wrong title");
             }
         }
 

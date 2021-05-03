@@ -30,7 +30,7 @@ public class PageContent {
                 "    <title>Example Domain</title>\n" +
                 "\n" +
                 "    <meta charset=\"utf-8\" />\n" +
-                "    <meta http-equiv=\"Content-type\" content=\"text/html; charset=utf-8\" />\n" +
+                "    <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n" +
                 "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n" +
                 "    <style type=\"text/css\">\n" +
                 "    body {\n" +
@@ -125,7 +125,7 @@ public class PageContent {
     public Map<String, String> getLinksNContent(){
         return linksNContent;
     }
-    
+    public Map<String, String> getLinksNTitles(){return linksNTitles;}
     public String getContentWithLink(String link){
         return linksNContent.getOrDefault(link, "");
     }
