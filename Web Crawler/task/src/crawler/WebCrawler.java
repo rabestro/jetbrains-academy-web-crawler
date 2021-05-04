@@ -3,20 +3,14 @@ package crawler;
 import crawler.component.Toolbar;
 
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 
 import static java.lang.System.Logger.Level.INFO;
 
@@ -26,6 +20,7 @@ public class WebCrawler extends JFrame implements ActionListener {
 
     private final Toolbar toolbar = new Toolbar(this);
     private final JTextArea textArea = new JTextArea("HTML code?");
+
     {
         setTitle("Web Crawler");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
