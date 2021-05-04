@@ -6,7 +6,7 @@ import java.awt.event.ActionListener;
 
 public class Toolbar extends JPanel {
     private final JTextField urlField = new JTextField();
-    private final JButton runButton = new JButton("Get text!");
+    private final JButton runButton = new JButton("Parse");
     private final JLabel titleLabel = new JLabel("Example domain");
 
     {

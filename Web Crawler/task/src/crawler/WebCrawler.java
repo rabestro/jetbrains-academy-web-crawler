@@ -11,13 +11,18 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
 import static java.lang.System.Logger.Level.INFO;
 
 public class WebCrawler extends JFrame implements ActionListener {
     private static final System.Logger LOGGER = System.getLogger("");
+    private static final HttpClient client = HttpClient.newHttpClient();
 
     private final Toolbar toolbar = new Toolbar(this);
     private final JTextArea textArea = new JTextArea("HTML code?");
@@ -40,15 +45,13 @@ public class WebCrawler extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         LOGGER.log(INFO, "actionPerformed: " + e);
-        final var url = toolbar.getURL();
-        try (InputStream inputStream = new BufferedInputStream(new URL(url).openStream())) {
-            String siteText = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-            textArea.setText(siteText);
-            final var title = siteText.replaceFirst("(?is).*<title>(.+)</title>.*", "$1");
+        final var request = HttpRequest.newBuilder(URI.create(toolbar.getURL())).GET().build();
+        try {
+            final var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            textArea.setText(response.body());
+            final var title = response.body().replaceFirst("(?is).*<title>(.+)</title>.*", "$1");
             toolbar.setTitle(title);
-        } catch (MalformedURLException malformedURLException) {
-            malformedURLException.printStackTrace();
-        } catch (IOException ioException) {
+        } catch (IOException | InterruptedException ioException) {
             ioException.printStackTrace();
         }
     }
