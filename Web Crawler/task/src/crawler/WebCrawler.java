@@ -1,5 +1,7 @@
 package crawler;
 
+import crawler.component.Toolbar;
+
 import javax.swing.*;
 
 import java.awt.*;
@@ -17,8 +19,7 @@ import static java.lang.System.Logger.Level.INFO;
 public class WebCrawler extends JFrame implements ActionListener {
     private static final System.Logger LOGGER = System.getLogger("");
 
-    private final JButton runButton = new JButton("Get text!");
-    private final JTextField urlField = new JTextField();
+    private final Toolbar toolbar = new Toolbar(this);
     private final JTextArea textArea = new JTextArea("HTML code?");
     {
         setTitle("Web Crawler");
@@ -26,11 +27,7 @@ public class WebCrawler extends JFrame implements ActionListener {
         setSize(300, 300);
         setVisible(true);
 
-        urlField.setName("UrlTextField");
-        add(urlField, BorderLayout.NORTH);
-        runButton.setName("RunButton");
-        runButton.addActionListener(this);
-        add(runButton, BorderLayout.SOUTH);
+        add(toolbar, BorderLayout.NORTH);
         textArea.setName("HtmlTextArea");
         textArea.setEnabled(false);
         add(textArea, BorderLayout.CENTER);
@@ -43,9 +40,12 @@ public class WebCrawler extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         LOGGER.log(INFO, "actionPerformed: " + e);
-        try (InputStream inputStream = new BufferedInputStream(new URL(urlField.getText()).openStream())) {
+        final var url = toolbar.getURL();
+        try (InputStream inputStream = new BufferedInputStream(new URL(url).openStream())) {
             String siteText = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
             textArea.setText(siteText);
+            final var title = siteText.replaceFirst("(?is).*<title>(.+)</title>.*", "$1");
+            toolbar.setTitle(title);
         } catch (MalformedURLException malformedURLException) {
             malformedURLException.printStackTrace();
         } catch (IOException ioException) {
