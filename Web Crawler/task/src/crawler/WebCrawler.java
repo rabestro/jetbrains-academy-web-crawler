@@ -11,6 +11,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import static java.lang.System.Logger.Level.INFO;
 
@@ -40,14 +42,21 @@ public class WebCrawler extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         LOGGER.log(INFO, "actionPerformed: " + e);
-        final var request = HttpRequest.newBuilder(URI.create(toolbar.getURL())).GET().build();
         try {
-            final var response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            textArea.setText(response.body());
-            final var title = response.body().replaceFirst("(?is).*<title>(.+)</title>.*", "$1");
-            toolbar.setTitle(title);
-        } catch (IOException | InterruptedException ioException) {
+            final var doc = Jsoup.connect(toolbar.getURL()).get();
+            textArea.setText(doc.wholeText());
+            toolbar.setTitle(doc.title());
+        } catch (IOException ioException) {
             ioException.printStackTrace();
         }
+//        final var request = HttpRequest.newBuilder(URI.create(toolbar.getURL())).GET().build();
+//        try {
+//            final var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+//            textArea.setText(response.body());
+//            final var title = response.body().replaceFirst("(?is).*<title>(.+)</title>.*", "$1");
+//            toolbar.setTitle(title);
+//        } catch (IOException | InterruptedException ioException) {
+//            ioException.printStackTrace();
+//        }
     }
 }
