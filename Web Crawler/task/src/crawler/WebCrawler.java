@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
 import static java.lang.System.Logger.Level.DEBUG;
@@ -25,7 +26,7 @@ public class WebCrawler extends JFrame implements ActionListener {
             Pattern.DOTALL + Pattern.CASE_INSENSITIVE
     );
     private static final Pattern LINK = Pattern.compile(
-            "(?<=href=[\"'])(?<link>.+)(?=[\"']>)"
+            "(?<=<a [^>]*href=[\"']\\s?)(?<link>[^\"']+)(?=[\"'])"
             , Pattern.DOTALL + Pattern.CASE_INSENSITIVE
     );
     private final Toolbar toolbar = new Toolbar(this);
@@ -58,6 +59,11 @@ public class WebCrawler extends JFrame implements ActionListener {
             LOGGER.log(INFO, response.headers().firstValue("content-type"));
             LOGGER.log(INFO, response.headers().allValues("content-type"));
             final var title = TITLE.matcher(response.body()).replaceFirst("$1");
+            LINK.matcher(response.body())
+                    .results()
+                    .map(MatchResult::group)
+                    .forEach(link -> LOGGER.log(INFO, link));
+
             toolbar.setTitle(title);
         } catch (IOException | InterruptedException ioException) {
             ioException.printStackTrace();
