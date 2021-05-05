@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Optional;
@@ -29,13 +30,10 @@ public class WebCrawler extends JFrame implements ActionListener {
             Pattern.DOTALL + Pattern.CASE_INSENSITIVE
     );
     private static final Pattern LINK = Pattern.compile(
-            "<a [^>]*>"
+            "<a [^>]*href\\s*=\\s*(['\"])(?<link>(?!javascript)[^\"'>]+)\\1"
             , Pattern.DOTALL + Pattern.CASE_INSENSITIVE
     );
     private final Toolbar toolbar = new Toolbar(this);
-    private final LinkTableModel tableModel = new LinkTableModel();
-    private final JTable table = new JTable(tableModel);
-    private final JScrollPane sp = new JScrollPane(table);
     private final TablePanel tablePanel = new TablePanel();
 
     {
@@ -44,7 +42,6 @@ public class WebCrawler extends JFrame implements ActionListener {
         setSize(300, 300);
         setVisible(true);
         add(toolbar, BorderLayout.NORTH);
-        table.setName("TitlesTable");
         add(tablePanel, BorderLayout.CENTER);
     }
 
@@ -57,26 +54,46 @@ public class WebCrawler extends JFrame implements ActionListener {
         LOGGER.log(INFO, "actionPerformed: {0}", e);
         final var response = getResponse(toolbar.getURL());
 
-        final var title = response
-                .map(HttpResponse::body)
-                .map(TITLE::matcher)
-                .map(m -> m.replaceFirst("$1"))
-                .orElse("--- no page ---");
+        LOGGER.log(INFO, response.map(HttpResponse::headers).map(HttpHeaders::toString).orElse("none"));
+
+        final var title = response.map(this::getTitle).orElse("--- no page ---");
         toolbar.setTitle(title);
+
 
         final var links = response
                 .map(HttpResponse::body)
                 .map(LINK::matcher)
                 .map(Matcher::results)
                 .orElseGet(Stream::empty)
-                .map(MatchResult::group)
+                .map(m->m.group(2))
                 .distinct()
-                .map(link -> new String[]{link, ""})
+                .map(s -> new String[]{s, s})
+                .filter(row -> row.length == 2)
                 .toArray(String[][]::new);
 
         LOGGER.log(INFO, "Links collected: {0}.", links.length);
         tablePanel.setData(links);
         tablePanel.refresh();
+    }
+
+    private String[] getRow(String url) {
+        return getResponse(url)
+                .filter(this::isTextHtml)
+                .map(HttpResponse::body)
+                .map(TITLE::matcher)
+                .map(s -> new String[]{url, s.replaceFirst("$1")})
+                .orElse(new String[0]);
+    }
+
+    private String getTitle(HttpResponse<String> response) {
+        return TITLE.matcher(response.body()).replaceFirst("$1");
+    }
+
+    private boolean isTextHtml(HttpResponse<String> response) {
+        return response.headers()
+                .firstValue("content-type")
+                .map(s -> s.contains("text/html"))
+                .orElse(false);
     }
 
     private Optional<HttpResponse<String>> getResponse(String url) {

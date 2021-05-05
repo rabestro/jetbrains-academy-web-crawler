@@ -6,13 +6,12 @@ import java.awt.*;
 public class TablePanel extends JPanel {
     private JTable table;
     private LinkTableModel tableModel;
-    public TablePanel() {
 
+    public TablePanel() {
         tableModel = new LinkTableModel();
         table = new JTable(tableModel);
-
+        table.setName("TitlesTable");
         setLayout(new BorderLayout());
-
         add(new JScrollPane(table), BorderLayout.CENTER);
     }
 
