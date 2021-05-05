@@ -8,6 +8,11 @@ public class LinkTableModel extends AbstractTableModel {
     final Object[][] data = {{"Bob" , "Programmer"} , {"Alice" , "Programmer"}};
 
     @Override
+    public String getColumnName(int column) {
+        return columns[column];
+    }
+
+    @Override
     public int getRowCount() {
         return data.length;
     }
