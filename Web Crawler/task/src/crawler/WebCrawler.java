@@ -1,6 +1,5 @@
 package crawler;
 
-import crawler.component.LinkTableModel;
 import crawler.component.TablePanel;
 import crawler.component.Toolbar;
 
@@ -15,7 +14,6 @@ import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Optional;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -59,13 +57,12 @@ public class WebCrawler extends JFrame implements ActionListener {
         final var title = response.map(this::getTitle).orElse("--- no page ---");
         toolbar.setTitle(title);
 
-
         final var links = response
                 .map(HttpResponse::body)
                 .map(LINK::matcher)
                 .map(Matcher::results)
                 .orElseGet(Stream::empty)
-                .map(m->m.group(2))
+                .map(m -> m.group(2))
                 .distinct()
                 .map(s -> new String[]{s, s})
                 .filter(row -> row.length == 2)
