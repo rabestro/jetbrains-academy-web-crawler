@@ -1,11 +1,14 @@
-package crawler;
+package crawler.component;
 
 import javax.swing.table.AbstractTableModel;
 
 public class LinkTableModel extends AbstractTableModel {
-    final String[] columns = {"URL", "Title"};
+    private static final String[] columns = {"URL", "Title"};
+    private String[][] data = {{"Bob" , "Programmer"} , {"Alice" , "Programmer"}};
 
-    final Object[][] data = {{"Bob" , "Programmer"} , {"Alice" , "Programmer"}};
+    public void setData(String[][] data) {
+        this.data = data;
+    }
 
     @Override
     public String getColumnName(int column) {
@@ -26,4 +29,6 @@ public class LinkTableModel extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         return data[rowIndex][columnIndex];
     }
+
+
 }
