@@ -11,6 +11,7 @@ public class TablePanel extends JPanel {
         tableModel = new LinkTableModel();
         table = new JTable(tableModel);
         table.setName("TitlesTable");
+        table.setEnabled(false);
         setLayout(new BorderLayout());
         add(new JScrollPane(table), BorderLayout.CENTER);
     }

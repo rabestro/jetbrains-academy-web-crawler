@@ -14,6 +14,7 @@ import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -37,7 +38,7 @@ public class WebCrawler extends JFrame implements ActionListener {
     {
         setTitle("Web Crawler");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(300, 300);
+        setSize(900, 600);
         setVisible(true);
         add(toolbar, BorderLayout.NORTH);
         add(tablePanel, BorderLayout.CENTER);
@@ -50,12 +51,16 @@ public class WebCrawler extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         LOGGER.log(INFO, "actionPerformed: {0}", e);
-        final var response = getResponse(toolbar.getURL());
+        final var url = toolbar.getURL();
+        final var response = getResponse(url);
 
         LOGGER.log(INFO, response.map(HttpResponse::headers).map(HttpHeaders::toString).orElse("none"));
 
         final var title = response.map(this::getTitle).orElse("--- no page ---");
         toolbar.setTitle(title);
+
+        UnaryOperator<String> absoluteLink = link -> link.startsWith("http") ? link :
+                url.endsWith("/") || link.startsWith("/") ? url + link : url + "/" + link;
 
         final var links = response
                 .map(HttpResponse::body)
@@ -64,7 +69,8 @@ public class WebCrawler extends JFrame implements ActionListener {
                 .orElseGet(Stream::empty)
                 .map(m -> m.group(2))
                 .distinct()
-                .map(s -> new String[]{s, s})
+                .map(absoluteLink)
+                .map(s -> new String[]{s, getResponse(s).map(this::getTitle).orElse("--- none ---")})
                 .filter(row -> row.length == 2)
                 .toArray(String[][]::new);
 
@@ -73,6 +79,9 @@ public class WebCrawler extends JFrame implements ActionListener {
         tablePanel.refresh();
     }
 
+    //    private String getAbsoluteLink(String baseUrl, String link) {
+//        return link.startsWith("http") ? link : baseUrl + link;
+//    }
     private String[] getRow(String url) {
         return getResponse(url)
                 .filter(this::isTextHtml)
