@@ -1,0 +1,15 @@
+type: code
+files:
+- name: src/Main.java
+  visible: true
+  text: |-
+    class ListOperations {
+        public static void transferAllElements(LinkedList<String> linkedList, ArrayList<String> arrayList) {
+            // write your code here
+
+        }
+    }
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/12401#comment
+status: Solved
+record: -1
