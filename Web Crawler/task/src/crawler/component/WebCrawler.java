@@ -33,9 +33,6 @@ public class WebCrawler extends JFrame implements ActionListener {
     }
 
     private static String[] apply(String link) {
-        if (link.endsWith("/")) {
-            link = "http://localhost:25555/circular1";
-        }
         try {
             final var doc = Jsoup.connect(link).get();
             LOGGER.log(INFO, "Add: {0}, DocumentType: {1}", link, doc.documentType());
