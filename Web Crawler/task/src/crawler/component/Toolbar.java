@@ -15,7 +15,7 @@ public class Toolbar extends JPanel {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
         c.gridy = 0;
-        c.insets = new Insets(5, 5, 5, 5);
+        c.insets = new Insets(10, 10, 5, 10);
         add(new JLabel("URL:"), c);
         c.gridy = 1;
         add(new JLabel("Title:"), c);

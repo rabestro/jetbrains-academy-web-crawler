@@ -1,7 +1,5 @@
-package crawler;
+package crawler.component;
 
-import crawler.component.TablePanel;
-import crawler.component.Toolbar;
 import org.jsoup.Jsoup;
 
 import javax.swing.*;
@@ -10,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 import static java.lang.System.Logger.Level.INFO;
 
@@ -18,6 +15,7 @@ public class WebCrawler extends JFrame implements ActionListener {
     private static final System.Logger LOGGER = System.getLogger("");
 
     private final Toolbar toolbar = new Toolbar(this);
+    private final ExportFile exportFile = new ExportFile();
     private final TablePanel tablePanel = new TablePanel();
 
     {
@@ -27,6 +25,7 @@ public class WebCrawler extends JFrame implements ActionListener {
         setVisible(true);
         add(toolbar, BorderLayout.NORTH);
         add(tablePanel, BorderLayout.CENTER);
+        add(exportFile, BorderLayout.SOUTH);
     }
 
     public WebCrawler() {
@@ -59,12 +58,8 @@ public class WebCrawler extends JFrame implements ActionListener {
             final var links = doc.select("a[href]");
             LOGGER.log(INFO, "Processed: {0}, Title: {1}, Links: {2}", url, doc.title(), links.size());
             toolbar.setTitle(doc.title());
-//            links.eachAttr("abs:href").forEach(x -> LOGGER.log(INFO, "Link: {0}", x));
             var s = links.eachAttr("abs:href").stream();
-//            if (url.endsWith("3")) {
-//                s = Stream.concat(Stream.of("http://example.com/"), s);
-//            }
-            s = Stream.concat(Stream.of("http://localhost:25555/circular1/"), s);
+
             final var data = s.map(WebCrawler::apply).filter(Objects::nonNull).toArray(String[][]::new);
             LOGGER.log(INFO, "Table set data rows: {0}", data.length);
             tablePanel.setData(data);
