@@ -1,6 +1,9 @@
-package crawler.view;
+package crawler;
 
 import crawler.controller.Crawler;
+import crawler.view.ExportFile;
+import crawler.view.TablePanel;
+import crawler.view.Toolbar;
 
 import javax.swing.*;
 import java.awt.*;
@@ -39,7 +42,6 @@ public class WebCrawler extends JFrame implements ActionListener {
                 final var data = crawler.getPageContent(toolbar.getURL());
                 toolbar.setTitle(data.getTitle());
                 tablePanel.setData(data.getLinks());
-                tablePanel.refresh();
                 break;
             case "Save":
                 crawler.save(exportFile.getFileName());

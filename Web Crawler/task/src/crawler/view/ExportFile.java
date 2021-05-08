@@ -18,7 +18,7 @@ public class ExportFile extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     }
 
-    ExportFile(ActionListener listener) {
+    public ExportFile(ActionListener listener) {
         super(new BorderLayout());
         saveButton.addActionListener(listener);
     }

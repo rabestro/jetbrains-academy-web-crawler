@@ -13,7 +13,7 @@ public class TablePanel extends JPanel {
     private final DefaultTableModel tableModel = new DefaultTableModel(COLUMNS, 0);
 
     public TablePanel() {
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
+        setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         setLayout(new BorderLayout());
 
         final var table = new JTable(tableModel);
@@ -23,9 +23,11 @@ public class TablePanel extends JPanel {
     }
 
     public void setData(String[][] db) {
-        LOGGER.log(INFO, "Table setDataVector, rows: {0}", db.length);
+        LOGGER.log(INFO, "Table set rows: {0}", db.length);
+
         tableModel.setDataVector(db, COLUMNS);
         tableModel.fireTableDataChanged();
+        refresh();
     }
 
     public void refresh() {
