@@ -34,9 +34,12 @@ public class WebCrawler extends JFrame implements ActionListener {
     }
 
     private static String[] apply(String link) {
+        if (link.endsWith("/")) {
+            link = "http://localhost:25555/circular1";
+        }
         try {
             final var doc = Jsoup.connect(link).get();
-            LOGGER.log(INFO, "Link: {0}, DocumentType: {1}", link, doc.documentType());
+            LOGGER.log(INFO, "Add: {0}, DocumentType: {1}", link, doc.documentType());
             if (doc.documentType() == null) {
                 return null;
             }
@@ -54,18 +57,17 @@ public class WebCrawler extends JFrame implements ActionListener {
         try {
             final var doc = Jsoup.connect(url).get();
             final var links = doc.select("a[href]");
-            LOGGER.log(INFO, "url: {0}, Title: {1}, Links: {2}", url, doc.title(), links.size());
+            LOGGER.log(INFO, "Processed: {0}, Title: {1}, Links: {2}", url, doc.title(), links.size());
             toolbar.setTitle(doc.title());
-            links.eachAttr("abs:href").forEach(x -> LOGGER.log(INFO, "Link: {0}", x));
+//            links.eachAttr("abs:href").forEach(x -> LOGGER.log(INFO, "Link: {0}", x));
             var s = links.eachAttr("abs:href").stream();
 //            if (url.endsWith("3")) {
 //                s = Stream.concat(Stream.of("http://example.com/"), s);
 //            }
-            tablePanel.setData(s
-                    .map(WebCrawler::apply)
-                    .filter(Objects::nonNull)
-                    .toArray(String[][]::new)
-            );
+            s = Stream.concat(Stream.of("http://localhost:25555/circular1/"), s);
+            final var data = s.map(WebCrawler::apply).filter(Objects::nonNull).toArray(String[][]::new);
+            LOGGER.log(INFO, "Table set data rows: {0}", data.length);
+            tablePanel.setData(data);
             tablePanel.refresh();
         } catch (IOException ioException) {
             ioException.printStackTrace();
