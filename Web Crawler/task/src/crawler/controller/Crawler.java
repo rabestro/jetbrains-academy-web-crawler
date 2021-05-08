@@ -19,16 +19,17 @@ public class Crawler {
     private PageContent content;
 
     public PageContent getPageContent(final String url) {
-        final Document doc;
         try {
-            doc = Jsoup.connect(url).get();
+            final var doc = Jsoup.connect(url).get();
             final var links = doc.select("a[href]");
             final var title = doc.title();
+            LOGGER.log(INFO, "Parse: {0}; Title: {1}.", url, title);
             final var data = links.eachAttr("abs:href").stream()
                     .distinct()
                     .map(Crawler::apply)
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            data.put(url, title);
             content = new PageContent(url, title, data);
         } catch (IOException e) {
             e.printStackTrace();
