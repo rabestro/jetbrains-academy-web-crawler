@@ -1,4 +1,4 @@
-import crawler.component.WebCrawler;
+import crawler.WebCrawler;
 import org.assertj.swing.fixture.JButtonFixture;
 import org.assertj.swing.fixture.JLabelFixture;
 import org.assertj.swing.fixture.JTableFixture;

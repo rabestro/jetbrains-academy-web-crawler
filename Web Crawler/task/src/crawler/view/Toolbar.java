@@ -1,4 +1,4 @@
-package crawler.component;
+package crawler.view;
 
 import javax.swing.*;
 import java.awt.*;

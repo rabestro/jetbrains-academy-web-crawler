@@ -1,6 +1,6 @@
 package crawler;
 
-import crawler.component.WebCrawler;
+import crawler.view.WebCrawler;
 
 public class ApplicationRunner {
     public static void main(String[] args) {
