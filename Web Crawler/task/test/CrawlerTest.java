@@ -1,8 +1,5 @@
 import crawler.WebCrawler;
-import org.assertj.swing.fixture.JButtonFixture;
-import org.assertj.swing.fixture.JLabelFixture;
-import org.assertj.swing.fixture.JTableFixture;
-import org.assertj.swing.fixture.JTextComponentFixture;
+import org.assertj.swing.fixture.*;
 import org.hyperskill.hstest.dynamic.DynamicTest;
 import org.hyperskill.hstest.mocks.web.WebPage;
 import org.hyperskill.hstest.mocks.web.WebServerMock;
@@ -24,14 +21,14 @@ import java.util.Map;
 
 public class CrawlerTest extends SwingTest {
 
+    private Map<String, String> mapOfLinksNTitles = pageContent.getLinksNTitles();
+    private final String EXPORT_DIRECTORY = Paths.get("").toAbsolutePath().toString() + "/temp.txt";
+
     private static WebServerMock webServerMock;
     private static PageContent pageContent;
     private static final int PORT = 25555;
+    private Map<String, String> mapOfTitles;
     private static List<String> parsedPages;
-
-    Map<String, String> mapOfLinksNTitles = pageContent.getLinksNTitles();
-    private final String EXPORT_DIRECTORY = Paths.get("").toAbsolutePath().toString() + "/temp.txt";
-
 
     public CrawlerTest() {
         super(new WebCrawler());
@@ -39,6 +36,7 @@ public class CrawlerTest extends SwingTest {
 
     @BeforeClass
     public static void initWebServer() {
+
         System.out.println("Initializing server");
         pageContent = new PageContent();
         parsedPages = new ArrayList<>();
@@ -75,7 +73,6 @@ public class CrawlerTest extends SwingTest {
         });
 
         thread.start();
-
     }
 
     @AfterClass
@@ -92,17 +89,20 @@ public class CrawlerTest extends SwingTest {
         }
     }
 
-    @SwingComponent(name = "TitlesTable")
-    JTableFixture titlesTable;
-
     @SwingComponent(name = "UrlTextField")
     JTextComponentFixture textField;
 
     @SwingComponent(name = "RunButton")
-    JButtonFixture runButton;
+    JToggleButtonFixture runButton;
 
-    @SwingComponent(name = "TitleLabel")
-    JLabelFixture titleLabel;
+    @SwingComponent(name = "DepthTextField")
+    JTextComponentFixture depthTextField;
+
+    @SwingComponent(name = "DepthCheckBox")
+    JCheckBoxFixture depthCheckBox;
+
+    @SwingComponent(name = "ParsedLabel")
+    JLabelFixture parsedLabel;
 
     @SwingComponent(name = "ExportUrlTextField")
     JTextComponentFixture exportUrlTextField;
@@ -115,131 +115,82 @@ public class CrawlerTest extends SwingTest {
 
         requireVisible(textField);
         requireVisible(runButton);
-        requireVisible(titleLabel);
-        requireVisible(titlesTable);
         requireVisible(exportUrlTextField);
         requireVisible(exportButton);
+        requireVisible(depthTextField);
+        requireVisible(depthCheckBox);
+        requireVisible(parsedLabel);
 
         requireEnabled(textField);
         requireEnabled(runButton);
-        requireEnabled(titleLabel);
         requireEnabled(exportUrlTextField);
         requireEnabled(exportButton);
-
-        requireDisabled(titlesTable);
-        titlesTable.requireColumnCount(2);
+        requireEnabled(depthTextField);
+        requireEnabled(depthCheckBox);
+        requireEnabled(parsedLabel);
 
         return CheckResult.correct();
     }
 
-
     @DynamicTest(order = 2)
-    CheckResult testTitles() {
+    CheckResult testParsedLabel() {
 
+        String link = "http://localhost:25555/exampleDotCom";
+        textField.setText(link);
+        runButton.click();
 
-        for (Map.Entry<String, String> m : mapOfLinksNTitles.entrySet()) {
-            String link = m.getKey();
-            textField.setText(link);
-            runButton.click();
-            String title = pageContent.getTitleWithLink(link);
-            if (!titleLabel.text().equals(title)) {
-                return CheckResult.wrong("TitleLabel shows the wrong title");
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            System.out.println();
+        }
+
+        int numberOfSubLinks = pageContent.getSubLinksWithLink(link);
+
+        try {
+            int parsedLabelText = Integer.parseInt(parsedLabel.text());
+
+            if (parsedLabelText != numberOfSubLinks) {
+                return CheckResult.wrong("ParsedLabel shows wrong number of parsed pages");
             }
+
+        } catch (NumberFormatException e) {
+            return CheckResult.wrong("ParsedLabel shows wrong number of parsed pages");
         }
 
         return CheckResult.correct();
     }
 
     @DynamicTest(order = 3)
-    CheckResult testTitlesTable() {
+    CheckResult testRunButtonDeselected() {
 
-        Map<String, String> mapOfLinksNTitles = pageContent.getLinksNTitles();
+        textField.setText("http://localhost:25555/exampleDotCom");
+        runButton.click();
 
-        for (Map.Entry<String, String> m : mapOfLinksNTitles.entrySet()) {
-            String link = m.getKey();
-            textField.setText(link);
-            runButton.click();
-            boolean validContent = checkTableContent(true);
-            if (!validContent) {
-                return CheckResult.wrong("TitlesTable contains link(s) that is neither a base link nor a sub-link");
-            }
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+
+        runButton = runButton.requireSelected(false);
+
+        if (runButton == null) {
+            return CheckResult.wrong("RunButton should be deselected when there are no more links to parse");
+        }
+
         return CheckResult.correct();
     }
 
     @DynamicTest(order = 4)
-    CheckResult testTitlesTableForWrongLinks() {
-
-        for (Map.Entry<String, String> m : mapOfLinksNTitles.entrySet()) {
-            String link = m.getKey();
-            textField.setText(link);
-            runButton.click();
-            boolean validContent = checkTableContent(false);
-            if (!validContent) {
-                return CheckResult.wrong("TitlesTable contains wrong link and title pair after parsing.");
-            }
-        }
-
-        return CheckResult.correct();
-    }
-
-    @DynamicTest(order = 5)
-    CheckResult testForDoubleLinks() {
-
-        for (Map.Entry<String, String> m : mapOfLinksNTitles.entrySet()) {
-            String link = m.getKey();
-            textField.setText(link);
-            runButton.click();
-            boolean doubleLinks = checkForDoubleLinks();
-            if (doubleLinks) {
-                return CheckResult.wrong("You shouldn't save a links that you have previously saved");
-            }
-        }
-
-        return CheckResult.correct();
-    }
-
-    @DynamicTest(order = 6)
-    CheckResult testForUnavailableLinks() {
-
-        for (Map.Entry<String, String> m : mapOfLinksNTitles.entrySet()) {
-            String link = (String) m.getKey();
-            textField.setText(link);
-            runButton.click();
-            boolean validContent = checkForUnavailablePage();
-            if (!validContent) {
-                return CheckResult.wrong("TitlesTable shows a link to the page that is unavailable." +
-                    " You shouldn't add to the table unavailable links.");
-            }
-        }
-
-        return CheckResult.correct();
-    }
-
-    @DynamicTest(order = 7)
-    CheckResult testForRowNumber() {
-
-        for (Map.Entry<String, String> m : mapOfLinksNTitles.entrySet()) {
-            String link = m.getKey();
-            textField.setText(link);
-            runButton.click();
-            int numOfSubLinks = pageContent.getSubLinksWithLink(link);
-            if (numOfSubLinks != titlesTable.rowCount()) {
-                return CheckResult.wrong("TitlesTable has wrong number of rows after parsing");
-            }
-        }
-
-        return CheckResult.correct();
-    }
-
-    @DynamicTest(order = 8)
     CheckResult testFileCreation() {
 
-        for (Map.Entry<String, String> m : mapOfLinksNTitles.entrySet()) {
+        exportUrlTextField.setText(EXPORT_DIRECTORY);
+        mapOfTitles = pageContent.getLinksNTitles();
+        for (Map.Entry<String, String> m : mapOfTitles.entrySet()) {
             String link = m.getKey();
             textField.setText(link);
             runButton.click();
-            exportUrlTextField.setText(EXPORT_DIRECTORY);
             exportButton.click();
             boolean fileExists = checkFileExistence();
             if (!fileExists) {
@@ -251,33 +202,68 @@ public class CrawlerTest extends SwingTest {
         return CheckResult.correct();
     }
 
-    @DynamicTest(order = 9)
-    CheckResult testFileContentLength() {
-
-        for (Map.Entry<String, String> m : mapOfLinksNTitles.entrySet()) {
+    @DynamicTest(order = 5)
+    CheckResult testForDuplicateLinks() {
+        for (Map.Entry<String, String> m : mapOfTitles.entrySet()) {
             String link = m.getKey();
-            int originalNumberOfLines = pageContent.getSubLinksWithLink(link);
             textField.setText(link);
             runButton.click();
-            exportUrlTextField.setText(EXPORT_DIRECTORY);
             exportButton.click();
-            boolean correctLines = checkFileNumberOfLines(originalNumberOfLines);
-            if (!correctLines) {
-                return CheckResult.wrong("The file your app saves contains wrong number of lines");
+            boolean duplicateLinks = checkForDuplicateLinks();
+            if (duplicateLinks) {
+                return CheckResult.wrong("You should not save links that you have previously parsed.");
+            }
+        }
+        return CheckResult.correct();
+    }
+
+    @DynamicTest(order = 6)
+    CheckResult testFileNumberOfLines() {
+
+        textField.setText("http://localhost:25555/exampleDotCom");
+        runButton.click();
+        exportButton.click();
+        boolean checkOne = checkFileNumberOfLines(2);
+
+        textField.setText("http://localhost:25555/circular3");
+        runButton.click();
+        exportButton.click();
+        boolean checkTwo = checkFileNumberOfLines(8);
+
+        if (!(checkOne && checkTwo)) {
+            return CheckResult.wrong("The file your app saves contains wrong number of lines");
+        }
+
+        return CheckResult.correct();
+    }
+
+    @DynamicTest(order = 7)
+    CheckResult testMaximumDepth() {
+        for (int i = 1; i <= 3; i++) {
+            depthTextField.setText(String.valueOf(i));
+            depthCheckBox.check(true);
+            textField.setText("http://localhost:25555/circular1");
+            runButton.click();
+            exportButton.click();
+
+            boolean maxDepthExceeded = checkMaxDepthExceeded(i * 2);
+            if (maxDepthExceeded) {
+                return CheckResult.wrong("Your program parsed links deeper than the maximum depth");
             }
         }
 
         return CheckResult.correct();
     }
 
-    @DynamicTest(order = 10)
+    @DynamicTest(order = 8)
     CheckResult testTitlesInFile() {
 
-        for (Map.Entry<String, String> m : mapOfLinksNTitles.entrySet()) {
-            String link = (String) m.getKey();
+        depthTextField.setText("");
+        depthCheckBox.check(false);
+        for (Map.Entry<String, String> m : mapOfTitles.entrySet()) {
+            String link = m.getKey();
             textField.setText(link);
             runButton.click();
-            exportUrlTextField.setText(EXPORT_DIRECTORY);
             exportButton.click();
             boolean valid = checkEvenLines();
             if (!valid) {
@@ -288,68 +274,32 @@ public class CrawlerTest extends SwingTest {
         return CheckResult.correct();
     }
 
+    @DynamicTest(order = 9)
+    CheckResult testTitlesInFileForDifferentDepths() {
 
-    private boolean checkTableContent(boolean testForValidLinks) {
-        String[][] tableContent = titlesTable.contents();
+        for (int i = 1; i <= 3; i++) {
+            depthTextField.setText(String.valueOf(i));
+            depthCheckBox.check(true);
+            textField.setText("http://localhost:25555/circular1");
+            runButton.click();
+            exportButton.click();
 
-        if (testForValidLinks) {
-            for (String[] s : tableContent) {
-                for (int j = 0; j < tableContent[0].length; j++) {
-                    String tableLink = s[0];
-                    if (!mapOfLinksNTitles.containsKey(tableLink)) {
-                        return false;
-                    }
-                }
-            }
-        } else {
-            for (String[] s : tableContent) {
-                for (int j = 0; j < tableContent[0].length; j++) {
-                    String tableTitle = s[1];
-                    String originalTitle = pageContent.getTitleWithLink(s[0]);
-                    if (!tableTitle.equals(originalTitle)) {
-                        return false;
-                    }
-                }
+            boolean valid = checkEvenLines();
+            if (!valid) {
+                return CheckResult.wrong("The file your app saves contains wrong title for it's parent url");
             }
         }
-        return true;
+
+        return CheckResult.correct();
     }
 
-    private boolean checkForDoubleLinks() {
-        parsedPages.clear();
-
-        String[][] tableContent = titlesTable.contents();
-        for (String[] s : tableContent) {
-            String link = s[0];
-            System.out.println(link);
-            if (parsedPages.contains(link)) {
-                return true;
-            }
-            parsedPages.add(link);
-        }
-        return false;
-    }
-
-    private boolean checkForUnavailablePage() {
-        String[][] tableContent = titlesTable.contents();
-        for (String[] s : tableContent) {
-            for (int i = 0; i < s.length; i += 2) {
-                if (!mapOfLinksNTitles.containsKey(s[i])) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
 
     private boolean checkFileExistence() {
         File file = new File(EXPORT_DIRECTORY);
         return file.exists();
     }
 
-    private boolean checkFileNumberOfLines(int originalNumberOfLines) {
-        //Multiplied by 2 because titles are placed after their corresponding link hence the total lines is doubled
-        originalNumberOfLines *= 2;
+    private boolean checkFileNumberOfLines(int expectedLineNumber) {
         int fileLines = 0;
         try (BufferedReader reader = new BufferedReader(new FileReader(EXPORT_DIRECTORY))) {
             while (reader.readLine() != null) {
@@ -358,9 +308,46 @@ public class CrawlerTest extends SwingTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return originalNumberOfLines == fileLines;
+        return expectedLineNumber == fileLines;
     }
 
+    private boolean checkForDuplicateLinks() {
+        parsedPages.clear();
+
+        boolean duplicateLinks = false;
+        int lineNumber = 1;
+        String line = "";
+        try (BufferedReader reader = new BufferedReader(new FileReader(EXPORT_DIRECTORY))) {
+            while ((line = reader.readLine()) != null) {
+                //Every odd line contains a link
+                if (lineNumber % 2 != 0) {
+                    if (parsedPages.contains(line)) {
+                        duplicateLinks = true;
+                    }
+                    parsedPages.add(line);
+                }
+                lineNumber++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return duplicateLinks;
+    }
+
+    private boolean checkMaxDepthExceeded(int expectedLines) {
+        int fileLines = 0;
+        try (BufferedReader reader = new BufferedReader(new FileReader(EXPORT_DIRECTORY))) {
+            while (reader.readLine() != null) {
+                fileLines++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return fileLines > expectedLines;
+    }
+
+    //Checks if every even line contains the correct title
     private boolean checkEvenLines() {
         boolean valid = true;
         int lineNumber = 1;
