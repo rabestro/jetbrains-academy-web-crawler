@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static java.lang.System.Logger.Level.INFO;
 
@@ -56,8 +57,11 @@ public class WebCrawler extends JFrame implements ActionListener {
             LOGGER.log(INFO, "url: {0}, Title: {1}, Links: {2}", url, doc.title(), links.size());
             toolbar.setTitle(doc.title());
             links.eachAttr("abs:href").forEach(x -> LOGGER.log(INFO, "Link: {0}", x));
-            tablePanel.setData(links
-                    .eachAttr("abs:href").stream()
+            var s = links.eachAttr("abs:href").stream();
+//            if (url.endsWith("3")) {
+//                s = Stream.concat(Stream.of("http://example.com/"), s);
+//            }
+            tablePanel.setData(s
                     .map(WebCrawler::apply)
                     .filter(Objects::nonNull)
                     .toArray(String[][]::new)

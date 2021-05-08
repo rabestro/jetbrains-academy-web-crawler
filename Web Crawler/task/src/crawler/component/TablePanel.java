@@ -1,19 +1,19 @@
 package crawler.component;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.Objects;
 
 import static java.lang.System.Logger.Level.INFO;
 
 public class TablePanel extends JPanel {
     private static final System.Logger LOGGER = System.getLogger("");
+    private static final String[] COLUMNS = {"URL", "Title"};
 
     private JTable table;
-    private LinkTableModel tableModel;
+    private final DefaultTableModel tableModel = new DefaultTableModel(COLUMNS, 0);
 
     public TablePanel() {
-        tableModel = new LinkTableModel();
         table = new JTable(tableModel);
         table.setName("TitlesTable");
         table.setEnabled(false);
@@ -22,8 +22,9 @@ public class TablePanel extends JPanel {
     }
 
     public void setData(String[][] db) {
-        LOGGER.log(INFO, "Table set to: {0}", Objects.isNull(db));
-        tableModel.setData(db);
+        LOGGER.log(INFO, "Table setDataVector, rows: {0}", db.length);
+        tableModel.setDataVector(db, COLUMNS);
+        tableModel.fireTableDataChanged();
     }
 
     public void refresh() {
