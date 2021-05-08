@@ -1,4 +1,4 @@
-package crawler.component;
+package crawler.view;
 
 import javax.swing.*;
 import java.awt.*;
@@ -6,7 +6,7 @@ import java.awt.event.ActionListener;
 
 public class Toolbar extends JPanel {
     private final JTextField urlField = new JTextField();
-    private final JButton runButton = new JButton("Get text!");
+    private final JButton runButton = new JButton("Parse");
     private final JLabel titleLabel = new JLabel("Example domain");
 
     {
@@ -15,7 +15,7 @@ public class Toolbar extends JPanel {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
         c.gridy = 0;
-        c.insets = new Insets(5,5,5,5);
+        c.insets = new Insets(10, 10, 5, 10);
         add(new JLabel("URL:"), c);
         c.gridy = 1;
         add(new JLabel("Title:"), c);

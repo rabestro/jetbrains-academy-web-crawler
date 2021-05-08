@@ -4,9 +4,11 @@ import java.util.Map;
 public class PageContent {
     private Map<String, String> linksNContent;
     private Map<String, String> linksNTitles;
+    private Map<String, Integer> linksNSubLinks;
     public PageContent(){
         linksNContent = new HashMap<>();
         linksNTitles = new HashMap<>();
+        linksNSubLinks = new HashMap<>();
         initPageContent();
     }
     
@@ -30,7 +32,7 @@ public class PageContent {
                 "    <title>Example Domain</title>\n" +
                 "\n" +
                 "    <meta charset=\"utf-8\" />\n" +
-                "    <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n" +
+                "    <meta http-equiv=\"Content-type\" content=\"text/html; charset=utf-8\" />\n" +
                 "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n" +
                 "    <style type=\"text/css\">\n" +
                 "    body {\n" +
@@ -121,11 +123,15 @@ public class PageContent {
         linksNTitles.put(circular1Link, circular1Title);
         linksNTitles.put(circular2Link, circular2Title);
         linksNTitles.put(circular3Link, circular3Title);
+        
+        linksNSubLinks.put(exampleDomainLink, 1);
+        linksNSubLinks.put(circular1Link, 2);
+        linksNSubLinks.put(circular2Link, 2);
+        linksNSubLinks.put(circular3Link, 3);
     }
-    public Map<String, String> getLinksNContent(){
-        return linksNContent;
-    }
+    
     public Map<String, String> getLinksNTitles(){return linksNTitles;}
+    public int getSubLinksWithLink(String link){return linksNSubLinks.getOrDefault(link, 0);}
     public String getContentWithLink(String link){
         return linksNContent.getOrDefault(link, "");
     }

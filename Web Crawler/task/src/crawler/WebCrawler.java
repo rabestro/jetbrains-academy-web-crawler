@@ -1,36 +1,33 @@
 package crawler;
 
-import crawler.component.Toolbar;
+import crawler.controller.Crawler;
+import crawler.view.ExportFile;
+import crawler.view.TablePanel;
+import crawler.view.Toolbar;
 
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 import static java.lang.System.Logger.Level.INFO;
 
 public class WebCrawler extends JFrame implements ActionListener {
     private static final System.Logger LOGGER = System.getLogger("");
 
+    private final Crawler crawler = new Crawler();
     private final Toolbar toolbar = new Toolbar(this);
-    private final JTextArea textArea = new JTextArea("HTML code?");
+    private final ExportFile exportFile = new ExportFile(this);
+    private final TablePanel tablePanel = new TablePanel();
+
     {
         setTitle("Web Crawler");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(300, 300);
+        setSize(900, 600);
         setVisible(true);
-
         add(toolbar, BorderLayout.NORTH);
-        textArea.setName("HtmlTextArea");
-        textArea.setEnabled(false);
-        add(textArea, BorderLayout.CENTER);
+        add(tablePanel, BorderLayout.CENTER);
+        add(exportFile, BorderLayout.SOUTH);
     }
 
     public WebCrawler() {
@@ -39,17 +36,17 @@ public class WebCrawler extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        LOGGER.log(INFO, "actionPerformed: " + e);
-        final var url = toolbar.getURL();
-        try (InputStream inputStream = new BufferedInputStream(new URL(url).openStream())) {
-            String siteText = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-            textArea.setText(siteText);
-            final var title = siteText.replaceFirst("(?is).*<title>(.+)</title>.*", "$1");
-            toolbar.setTitle(title);
-        } catch (MalformedURLException malformedURLException) {
-            malformedURLException.printStackTrace();
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
+        LOGGER.log(INFO, "actionPerformed: {0}", e.getActionCommand());
+        switch (e.getActionCommand()) {
+            case "Parse":
+                final var data = crawler.getPageContent(toolbar.getURL());
+                toolbar.setTitle(data.getTitle());
+                tablePanel.setData(data.getLinks());
+                break;
+            case "Save":
+                crawler.save(exportFile.getFileName());
         }
+
     }
+
 }
