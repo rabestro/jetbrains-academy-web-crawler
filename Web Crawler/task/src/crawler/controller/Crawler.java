@@ -5,13 +5,15 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.lang.System.Logger.Level.INFO;
-import static java.util.Objects.isNull;
 
 public class Crawler {
     private static final System.Logger LOGGER = System.getLogger("");
@@ -40,14 +42,20 @@ public class Crawler {
 
     public void save(String fileName) {
         LOGGER.log(INFO, "Save links to file {0}", fileName);
+        try {
+            Files.write(Paths.get(fileName), content.toString().getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static Map.Entry<String, String> apply(String link) {
         final Document doc;
         try {
             doc = Jsoup.connect(link).get();
-            LOGGER.log(INFO, "Add: {0}, DocumentType: {1}", link, doc.documentType());
-            return isNull(doc.documentType()) ? null : Map.entry(link, doc.title());
+            LOGGER.log(INFO, "Add: {0}, DocumentType: {1}, Body: {2}", link, doc.documentType(), doc.body());
+
+            return doc.body().toString().contains("Web Page not found") ? null : Map.entry(link, doc.title());
         } catch (IOException e) {
             e.printStackTrace();
         }
