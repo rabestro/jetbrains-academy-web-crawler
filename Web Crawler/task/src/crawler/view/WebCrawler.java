@@ -14,7 +14,7 @@ public class WebCrawler extends JFrame implements ActionListener {
 
     private final Crawler crawler = new Crawler();
     private final Toolbar toolbar = new Toolbar(this);
-    private final ExportFile exportFile = new ExportFile();
+    private final ExportFile exportFile = new ExportFile(this);
     private final TablePanel tablePanel = new TablePanel();
 
     {
@@ -33,11 +33,18 @@ public class WebCrawler extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        LOGGER.log(INFO, "actionPerformed: {0}", e);
-        final var data = crawler.getPageContent(toolbar.getURL());
-        toolbar.setTitle(data.getTitle());
-        tablePanel.setData(data.getLinks());
-        tablePanel.refresh();
+        LOGGER.log(INFO, "actionPerformed: {0}", e.getActionCommand());
+        switch (e.getActionCommand()) {
+            case "Parse":
+                final var data = crawler.getPageContent(toolbar.getURL());
+                toolbar.setTitle(data.getTitle());
+                tablePanel.setData(data.getLinks());
+                tablePanel.refresh();
+                break;
+            case "Save":
+                crawler.save(exportFile.getFileName());
+        }
+
     }
 
 }

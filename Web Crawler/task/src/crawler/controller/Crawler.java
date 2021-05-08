@@ -1,7 +1,6 @@
 package crawler.controller;
 
 import crawler.model.PageContent;
-import crawler.view.WebCrawler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -36,6 +35,10 @@ public class Crawler {
             content = new PageContent(url, "", Collections.emptyMap());
         }
         return content;
+    }
+
+    public void save(String fileName) {
+        LOGGER.log(INFO, "Save links to file {0}", fileName);
     }
 
     private static Map.Entry<String, String> apply(String link) {

@@ -2,6 +2,7 @@ package crawler.view;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 
 public class ExportFile extends JPanel {
     private final JTextField fileName = new JTextField();
@@ -17,7 +18,12 @@ public class ExportFile extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     }
 
-    ExportFile() {
+    ExportFile(ActionListener listener) {
         super(new BorderLayout());
+        saveButton.addActionListener(listener);
+    }
+
+    public String getFileName() {
+        return fileName.getText();
     }
 }
