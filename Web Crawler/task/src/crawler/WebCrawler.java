@@ -2,6 +2,7 @@ package crawler;
 
 import crawler.controller.Crawler;
 import crawler.view.ExportFile;
+import crawler.view.Settings;
 import crawler.view.TablePanel;
 import crawler.view.Toolbar;
 
@@ -19,15 +20,17 @@ public class WebCrawler extends JFrame implements ActionListener {
     private final Toolbar toolbar = new Toolbar(this);
     private final ExportFile exportFile = new ExportFile(this);
     private final TablePanel tablePanel = new TablePanel();
+    private final Settings settings = new Settings();
 
     {
         setTitle("Web Crawler");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(900, 600);
         setVisible(true);
-        add(toolbar, BorderLayout.NORTH);
-        add(tablePanel, BorderLayout.CENTER);
-        add(exportFile, BorderLayout.SOUTH);
+//        add(toolbar, BorderLayout.NORTH);
+        add(settings.getSettingsPanel(), BorderLayout.CENTER);
+//        add(exportFile, BorderLayout.SOUTH);
+        pack();
     }
 
     public WebCrawler() {
