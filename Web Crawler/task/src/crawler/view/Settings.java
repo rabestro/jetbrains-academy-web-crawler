@@ -2,8 +2,14 @@ package crawler.view;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import static java.lang.System.Logger.Level.INFO;
 
 public class Settings {
+    private static final System.Logger LOGGER = System.getLogger("");
+
     private JTextField UrlTextField;
     private JToggleButton runButton;
     private JTextField textField2;
@@ -15,6 +21,15 @@ public class Settings {
     private JTextField textField4;
     private JButton saveButton;
 
+
+    public Settings() {
+        runButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                LOGGER.log(INFO, "actionPerformed: {0}", e.getActionCommand());
+            }
+        });
+    }
 
     public JPanel getSettingsPanel() {
         return settingsPanel;
