@@ -25,11 +25,9 @@ public class WebCrawler extends JFrame implements ActionListener {
     {
         setTitle("Web Crawler");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(900, 600);
+        setSize(600, 400);
         setVisible(true);
-//        add(toolbar, BorderLayout.NORTH);
         add(settings.getSettingsPanel(), BorderLayout.CENTER);
-//        add(exportFile, BorderLayout.SOUTH);
         pack();
     }
 
